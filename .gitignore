@@ -7,9 +7,10 @@
 /build
 /captures
 .externalNativeBuild
-/lib-commni/src/main/res/layout/activity_main.xml
 /lib-commni/src/test/java/jp/gr/java_conf/falius/andcommuni/ExampleUnitTest.java
 /lib-commni/src/androidTest/java/jp/gr/java_conf/falius/andcommuni/ExampleInstrumentedTest.java
-/lib-commni/src/main/java/jp/gr/java_conf/falius/andcommuni/example/
 
-/lib-commni/proguard-rules.pro
+/sampleapp/src/main/java/jp/gr/java_conf/falius/andcommuni/sampleapp/example/
+/sampleapp/src/main/res/layout/activity_example.xml
+/sampleapp/src/androidTest/java/jp/gr/java_conf/falius/andcommuni/sampleapp/ExampleInstrumentedTest.java
+/sampleapp/src/test/java/jp/gr/java_conf/falius/andcommuni/sampleapp/ExampleUnitTest.java
