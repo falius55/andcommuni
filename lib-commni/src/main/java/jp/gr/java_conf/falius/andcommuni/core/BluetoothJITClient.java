@@ -1,4 +1,4 @@
-package jp.gr.java_conf.falius.andcommuni;
+package jp.gr.java_conf.falius.andcommuni.core;
 
 import android.bluetooth.BluetoothDevice;
 import android.util.Log;
