@@ -1,6 +1,7 @@
 package jp.gr.java_conf.falius.andcommuni.core;
 
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +21,7 @@ import jp.gr.java_conf.falius.communication.rcvdata.ReceiveData;
  */
 
 final class ReadingHandler {
+    private static final String TAG = ReadingHandler.class.getName();
     private final String mRemoteAddress;
     private final InputStream mIn;
     private final OnReceiveListener mListener;
@@ -32,6 +34,7 @@ final class ReadingHandler {
 
     @Nullable
     ReceiveData receive() throws IOException {
+        Log.d(TAG, "reading");
         Header header = HeaderFactory.from(mIn);
         Entry entry = new Entry(header);
         int readBytes = entry.read(mIn);

@@ -1,5 +1,7 @@
 package jp.gr.java_conf.falius.andcommuni.core;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -14,6 +16,7 @@ import jp.gr.java_conf.falius.communication.senddata.SendData;
  */
 
 final class WritingHandler {
+    private static final String TAG = WritingHandler.class.getName();
     private final String mRemoteAddress;
     private final OutputStream mOut;
     private final SendData mSendData;
@@ -27,6 +30,7 @@ final class WritingHandler {
     }
 
     void send() throws IOException {
+        Log.d(TAG, "writing");
         Header header = HeaderFactory.from(mSendData);
         byte[] headerBytes = header.toByteBuffer().array();
         mOut.write(headerBytes);

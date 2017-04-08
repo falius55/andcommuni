@@ -73,6 +73,7 @@ public class BluetoothClient implements SwapClient {
     public ReceiveData start(@NonNull Swapper swapper) throws IOException, TimeoutException {
         try (BluetoothSocket socket = mDevice.createRfcommSocketToServiceRecord(UUID.fromString(mUuid))) {
             socket.connect();
+            Log.i(TAG, "success connect");
             if (mOnConnectListener != null) {
                 mOnConnectListener.onConnect(mRemoteAddress);
             }
@@ -84,7 +85,7 @@ public class BluetoothClient implements SwapClient {
                     if (sendData == null) {
                         break;
                     }
-                    new WritingHandler(mRemoteAddress, os, sendData, mOnSendListener);
+                    new WritingHandler(mRemoteAddress, os, sendData, mOnSendListener).send();
                     receiveData = new ReadingHandler(mRemoteAddress, is, mOnReceiveListener).receive();
                     if (!swapper.doContinue() || receiveData == null) {
                         break;
