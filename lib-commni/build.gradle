@@ -32,7 +32,7 @@ repositories {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile('com.github.falius55:communication:1.4.3.6&', {
+    compile('com.github.falius55:communication:1.4.3.7d', {
         exclude group: 'org.json', module: 'json'
     })
     compile 'com.github.falius55:java-util:1.1.5&'
