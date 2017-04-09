@@ -48,9 +48,19 @@ public class BluetoothServer implements Server {
     private void exec() throws IOException {
         try {
             while (!mIsShutdowned) {
-                BluetoothSocket sock = mServerSocket.accept();
+                Log.d(TAG, "try accept");
+                Log.d(TAG, "serversocket: " + mServerSocket);
+                BluetoothSocket sock;
+                try {
+                    sock = mServerSocket.accept();
+                } catch (IOException e) {
+                    // called close() during accept.
+                    // ignore because calling close() is normal flow.
+                    return;
+                }
+                Log.d(TAG, "success accept");
                 Session session = new Session(sock, mSwapperFactory.get(),
-                        mOnSendListener, mOnReceiveListener, mOnDisconnectCallback);
+                        mOnSendListener, mOnReceiveListener, mOnDisconnectCallback, false);
                 mExecutor.submit(session);
                 if (mOnAcceptListener != null) {
                     String remoteAddress = sock.getRemoteDevice().getAddress();

@@ -26,16 +26,17 @@ class Session implements Runnable, AutoCloseable {
     private final OnSendListener mOnSendListener;
     private final OnReceiveListener mOnReceiveListener;
     private final OnDisconnectCallback mOnDisconnectCallback;
+    private final boolean mIsClient;
 
     private final InputStream mIn;
     private final OutputStream mOut;
     private BluetoothHandler mNextHandler;
 
-
-    private boolean mIsContinue = true;
+    private ReceiveData mLatestData = null;
+    private boolean mDoContinue = true;
 
     Session(BluetoothSocket sock, Swapper swapper,
-            OnSendListener sendListener, OnReceiveListener onReceiveListener, OnDisconnectCallback onDisconnectCallback)
+            OnSendListener sendListener, OnReceiveListener onReceiveListener, OnDisconnectCallback onDisconnectCallback, boolean isClient)
             throws IOException {
         mSocket = sock;
         mSwapper = swapper;
@@ -45,14 +46,19 @@ class Session implements Runnable, AutoCloseable {
         mIn = sock.getInputStream();
         mOut = sock.getOutputStream();
         mRemoteAddress = sock.getRemoteDevice().getAddress();
-
-        mNextHandler = new BluetoothReadingHandler(this);
+        mIsClient = isClient;
     }
 
     public void run() {
         Log.d(TAG, "session start");
         try {
-            while (mIsContinue) {
+            if (mIsClient) {
+                mNextHandler = new BluetoothWritingHandler(this, mSwapper.swap(mRemoteAddress, null));
+            } else {
+                mNextHandler = new BluetoothReadingHandler(this);
+            }
+
+            while (mDoContinue) {
                 BluetoothHandler handler = mNextHandler;
                 handler.handle();
             }
@@ -67,8 +73,11 @@ class Session implements Runnable, AutoCloseable {
     }
 
     void disconnect(Throwable cause) {
+        if (!mDoContinue) {
+            return;
+        }
         Log.d(TAG, "session disconnect by " + (cause == null ? "null" : cause.getMessage()));
-        mIsContinue = false;
+        mDoContinue = false;
         try {
             mIn.close();
             mOut.close();
@@ -127,4 +136,16 @@ class Session implements Runnable, AutoCloseable {
         disconnect(null);
     }
 
+
+    void setData(ReceiveData receiveData) {
+        mLatestData = receiveData;
+    }
+
+    ReceiveData getData() {
+        return mLatestData;
+    }
+
+    boolean isClient() {
+        return mIsClient;
+    }
 }

@@ -40,10 +40,16 @@ class BluetoothReadingHandler implements BluetoothHandler {
         ReceiveData data = entry.getData();
 
         mSession.onReceive(data);
+        mSession.setData(data);
 
-        SendData sendData = mSession.newSendData(data);
-        BluetoothHandler handler = new BluetoothWritingHandler(mSession, sendData);
-        mSession.setHandler(handler);
+        if (!mSession.isClient() || mSession.doContinue()) {
+            SendData sendData = mSession.newSendData(data);
+            BluetoothHandler handler = new BluetoothWritingHandler(mSession, sendData);
+            mSession.setHandler(handler);
+        } else {
+            mSession.disconnect(null);
+        }
+
     }
 
     /**

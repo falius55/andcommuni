@@ -9,6 +9,9 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,6 +41,7 @@ public class BluetoothClient implements SwapClient {
     private final String mRemoteAddress;
     private final Swapper mSwapper;
 
+    private final Set<Session> mSessionSet = Collections.synchronizedSet(new HashSet<Session>());
     private ExecutorService mExecutorService = null;
 
     private OnSendListener mOnSendListener = null;
@@ -77,31 +81,11 @@ public class BluetoothClient implements SwapClient {
             if (mOnConnectListener != null) {
                 mOnConnectListener.onConnect(mRemoteAddress);
             }
+            Session session = new Session(socket, swapper, mOnSendListener, mOnReceiveListener, mOnDisconnectCallback, true);
+            mSessionSet.add(session);
+            session.run();
+            return session.getData();
 
-            try (InputStream is = socket.getInputStream(); OutputStream os = socket.getOutputStream()) {
-                ReceiveData receiveData = null;
-                while (mDoContinue) {
-                    SendData sendData = swapper.swap(mRemoteAddress, receiveData);
-                    if (sendData == null) {
-                        break;
-                    }
-                    new WritingHandler(mRemoteAddress, os, sendData, mOnSendListener).send();
-                    receiveData = new ReadingHandler(mRemoteAddress, is, mOnReceiveListener).receive();
-                    if (!swapper.doContinue() || receiveData == null) {
-                        break;
-                    }
-                }
-                if (mOnDisconnectCallback != null) {
-                    mOnDisconnectCallback.onDissconnect(mRemoteAddress, null);
-                }
-                return receiveData;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (mOnDisconnectCallback != null) {
-                mOnDisconnectCallback.onDissconnect(mRemoteAddress, e);
-            }
-            return null;
         }
     }
 
@@ -146,10 +130,13 @@ public class BluetoothClient implements SwapClient {
     public void close() throws IOException {
         mDoContinue = false;
         if (mExecutorService != null) {
-            mExecutorService.shutdownNow();
+            mExecutorService.shutdown();
         }
-        if (mOnDisconnectCallback != null) {
-            mOnDisconnectCallback.onDissconnect(mRemoteAddress, null);
+        synchronized (this) {
+            for (Session session : mSessionSet) {
+                session.disconnect(null);
+            }
+            mSessionSet.clear();
         }
     }
 
