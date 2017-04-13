@@ -6,9 +6,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jp.gr.java_conf.falius.communication.header.Header;
 import jp.gr.java_conf.falius.communication.header.HeaderFactory;
 import jp.gr.java_conf.falius.communication.senddata.SendData;

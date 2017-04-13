@@ -7,10 +7,9 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -48,13 +47,12 @@ public class BluetoothClient implements SwapClient {
     private OnReceiveListener mOnReceiveListener = null;
     private OnDisconnectCallback mOnDisconnectCallback = null;
     private Client.OnConnectListener mOnConnectListener = null;
-    private volatile boolean mDoContinue = true;
 
     public BluetoothClient(BluetoothDevice device, String uuid) {
-        this(device, uuid, null);
+        this(uuid, device, null);
     }
 
-    public BluetoothClient(BluetoothDevice device, String uuid, Swapper swapper) {
+    public BluetoothClient(String uuid, BluetoothDevice device, Swapper swapper) {
         mDevice = device;
         mUuid = uuid;
         mRemoteAddress = device.getAddress();
@@ -75,6 +73,7 @@ public class BluetoothClient implements SwapClient {
     @Nullable
     @Override
     public ReceiveData start(@NonNull Swapper swapper) throws IOException, TimeoutException {
+        Objects.requireNonNull(swapper);
         try (BluetoothSocket socket = mDevice.createRfcommSocketToServiceRecord(UUID.fromString(mUuid))) {
             socket.connect();
             Log.i(TAG, "success connect");
@@ -91,9 +90,8 @@ public class BluetoothClient implements SwapClient {
 
     @Override
     public Future<ReceiveData> startOnNewThread() {
-        if (mSwapper == null) {
-            throw new IllegalStateException("don't pass Swapper to constructor");
-        }
+        Objects.requireNonNull(mSwapper, "don't pass Swapper to constructor");
+
         if (mExecutorService == null) {
             synchronized (this) {
                 if (mExecutorService == null) {
@@ -128,7 +126,6 @@ public class BluetoothClient implements SwapClient {
 
     @Override
     public void close() throws IOException {
-        mDoContinue = false;
         if (mExecutorService != null) {
             mExecutorService.shutdown();
         }
@@ -143,9 +140,7 @@ public class BluetoothClient implements SwapClient {
 
     @Override
     public ReceiveData call() throws Exception {
-        if (mSwapper == null) {
-            throw new IllegalStateException("don't pass Swapper to constructor");
-        }
+        Objects.requireNonNull(mSwapper, "don't pass Swapper to constructor");
         return start(mSwapper);
     }
 

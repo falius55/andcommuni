@@ -1,1 +1,1 @@
-include ':lib-commni'  // , ':sampleapp'  // dependenciesにライブラリを加えたときに複数のモジュールが含まれていると複数のＳＤＫに依存しているとしてbuildが失敗する
+include ':lib-commni'   , ':sampleapp'  // dependenciesにライブラリを加えたときに複数のモジュールが含まれていると複数のＳＤＫに依存しているとしてbuildが失敗する

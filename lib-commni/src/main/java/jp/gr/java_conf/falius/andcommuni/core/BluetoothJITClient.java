@@ -28,8 +28,8 @@ public class BluetoothJITClient implements JITClient {
     private final BluetoothClient mClient;
     private final BlockingQueue<SendData> mSendDataQueue = new LinkedBlockingQueue<>();
 
-    public BluetoothJITClient(BluetoothDevice device, String uuid, OnReceiveListener receiveListener) {
-        mClient = new BluetoothClient(device, uuid, createSwapper());
+    public BluetoothJITClient(String uuid, BluetoothDevice device, OnReceiveListener receiveListener) {
+        mClient = new BluetoothClient(uuid, device, createSwapper());
         mClient.addOnReceiveListener(receiveListener);
 
     }
